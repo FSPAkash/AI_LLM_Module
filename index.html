@@ -1,0 +1,2275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI/LLM Learning Module | Forecast Intelligence</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --blue: #7EB8DA;
+            --blue-deep: #5A9BC5;
+            --blue-light: #A8D4EA;
+            --blue-pale: #E8F4FA;
+            --blue-glow: rgba(126, 184, 218, 0.18);
+            --green: #7BC8A4;
+            --green-deep: #5BAF8A;
+            --green-light: #A3DBBF;
+            --green-pale: #E6F5EE;
+            --green-glow: rgba(123, 200, 164, 0.18);
+            --red: #E8877C;
+            --red-pale: #FDF0EE;
+            --orange: #E8B87C;
+            --orange-pale: #FDF5EC;
+            --purple: #B08FCC;
+            --purple-pale: #F3EDF8;
+            --text: #2C3E50;
+            --text-secondary: #5D6D7E;
+            --text-tertiary: #8899AA;
+            --text-quaternary: #AAB7C4;
+            --bg: #FAFCFE;
+            --bg-secondary: #F0F5F9;
+            --bg-card: #FFFFFF;
+            --border: #DCE8F0;
+            --radius: 14px;
+            --radius-sm: 10px;
+            --shadow-sm: 0 1px 4px rgba(44, 62, 80, 0.05);
+            --shadow-md: 0 4px 18px rgba(44, 62, 80, 0.07);
+            --shadow-lg: 0 12px 40px rgba(44, 62, 80, 0.10);
+            --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .particle-canvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.35;
+        }
+
+        .page {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2.5rem 3rem 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 2.5rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header-logo {
+            width: 56px;
+            height: 56px;
+            background: transparent;
+            display: block;
+        }
+
+        .header-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .header-text {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+        }
+
+        .title {
+            font-size: 2.4rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+            animation: slideUp 0.5s ease-out both 0.1s;
+        }
+
+        .intro {
+            font-size: 1.05rem;
+            font-weight: 400;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            max-width: 680px;
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease-out both 0.2s;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 2rem;
+            animation: slideUp 0.5s ease-out both 0.25s;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .progress-actions {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+
+        .reset-progress-btn {
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text-tertiary);
+            font: inherit;
+            font-size: 0.68rem;
+            font-weight: 600;
+            padding: 0.18rem 0.48rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: var(--transition);
+            line-height: 1.2;
+        }
+
+        .reset-progress-btn:hover {
+            border-color: var(--blue-light);
+            color: var(--blue-deep);
+            background: var(--bg-secondary);
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 0;
+            margin-bottom: 2.5rem;
+            position: relative;
+        }
+
+        .flow-track,
+        .flow-progress {
+            position: absolute;
+            top: 16px; left: 60px; right: 60px;
+            height: 2px;
+            border-radius: 1px;
+            z-index: 0;
+        }
+
+        .flow-track { background: var(--border); }
+
+        .flow-progress {
+            background: linear-gradient(to right, var(--blue), var(--green));
+            right: auto;
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .step { text-align: center; position: relative; z-index: 1; }
+
+        .step .dot {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            margin: 0 auto 1rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; font-weight: 700; color: var(--text-tertiary);
+            position: relative; z-index: 1;
+            transition: var(--transition);
+        }
+
+        .step h3 { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+        .step p { font-size: 0.78rem; color: var(--text-tertiary); line-height: 1.45; padding: 0 0.5rem; }
+
+        .step-meter {
+            width: 74%;
+            height: 5px;
+            margin: 0.65rem auto 0.35rem;
+            border-radius: 999px;
+            background: var(--bg-secondary);
+            overflow: hidden;
+        }
+
+        .step-meter-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, var(--blue), var(--green));
+            transition: width 0.5s ease;
+        }
+
+        .step-status {
+            font-size: 0.7rem;
+            color: var(--text-quaternary);
+            min-height: 1.1rem;
+            line-height: 1.35;
+        }
+
+        .step.complete .dot {
+            background: linear-gradient(135deg, var(--blue), var(--green));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 2px 10px rgba(126, 184, 218, 0.35);
+        }
+
+        .step.partial .dot {
+            background: #fff;
+            border-color: var(--blue-light);
+            color: var(--blue-deep);
+        }
+
+        .step.complete h3 { color: var(--blue-deep); }
+        .step.complete p { color: var(--text-secondary); }
+        .step.partial h3 { color: var(--text); }
+        .step.partial p { color: var(--text-secondary); }
+        .step.complete .step-status { color: var(--green-deep); }
+        .step.partial .step-status { color: var(--text-secondary); }
+
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border);
+            animation: slideUp 0.5s ease-out both 0.3s;
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover { color: var(--text-secondary); }
+
+        .tab-btn.active {
+            color: var(--blue-deep);
+            border-bottom-color: var(--blue-deep);
+        }
+
+        .tab-btn .tab-badge {
+            display: inline-block;
+            margin-left: 0.5rem;
+            padding: 0.1rem 0.45rem;
+            font-size: 0.65rem;
+            font-weight: 700;
+            border-radius: 10px;
+            background: var(--blue-pale);
+            color: var(--blue-deep);
+            vertical-align: middle;
+        }
+
+        .tab-btn.active .tab-badge {
+            background: var(--blue-deep);
+            color: #fff;
+        }
+
+        .tab-content { display: none; animation: tabFadeIn 0.4s ease-out; }
+        .tab-content.active { display: block; }
+
+        @keyframes tabFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        .topic-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .topic-card:hover {
+            border-color: var(--blue);
+            box-shadow: var(--shadow-md), 0 0 0 1px var(--blue-glow);
+            transform: translateY(-2px);
+        }
+
+        .topic-card .card-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; font-weight: 700;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .topic-card .card-icon.blue { background: var(--blue); }
+        .topic-card .card-icon.green { background: var(--green); }
+        .topic-card .card-icon.orange { background: var(--orange); }
+        .topic-card .card-icon.purple { background: var(--purple); }
+        .topic-card .card-icon.red { background: var(--red); }
+
+        .topic-card h3 { font-size: 1.05rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+
+        .topic-card .card-subtitle {
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .topic-card .card-tag {
+            display: inline-block;
+            padding: 0.15rem 0.6rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .card-tag.beginner { background: var(--green-pale); color: var(--green-deep); }
+        .card-tag.intermediate { background: var(--blue-pale); color: var(--blue-deep); }
+        .card-tag.advanced { background: var(--purple-pale); color: var(--purple); }
+
+        .card-toggle {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--blue-deep);
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.5rem;
+        }
+
+        .comparison-section { margin-bottom: 2.5rem; }
+
+        .comparison-section h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            font-size: 0.85rem;
+        }
+
+        .comparison-table thead th {
+            background: var(--bg-secondary);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table tbody td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            vertical-align: top;
+        }
+
+        .comparison-table tbody tr:last-child td { border-bottom: none; }
+        .comparison-table tbody tr:hover { background: var(--blue-glow); }
+
+        .start-quiz-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.75rem 1.8rem;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.92rem;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, var(--blue-deep), var(--green-deep));
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 3px 12px rgba(90, 155, 197, 0.3);
+            margin-top: 1rem;
+        }
+
+        .start-quiz-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(90, 155, 197, 0.4);
+        }
+
+        .start-quiz-btn:active {
+            transform: scale(0.97);
+        }
+
+        .start-quiz-btn .btn-arrow {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .start-quiz-btn:hover .btn-arrow {
+            transform: translateX(3px);
+        }
+
+        .quiz-prompt {
+            text-align: center;
+            padding: 2rem 1rem;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            margin-top: 1rem;
+        }
+
+        .quiz-prompt h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .quiz-prompt p {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+        }
+
+        .bridge-prompt {
+            text-align: center;
+            padding: 2rem 1.5rem;
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            background: var(--bg-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .bridge-prompt:hover {
+            border-color: var(--blue);
+            background: var(--blue-pale);
+        }
+
+        .bridge-prompt h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .bridge-prompt p {
+            font-size: 0.85rem;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+        }
+
+        .bridge-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.65rem 1.5rem;
+            border: 1px solid var(--blue);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--blue-deep);
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .bridge-btn:hover {
+            background: var(--blue-deep);
+            color: #fff;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(44, 62, 80, 0.45);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 900;
+            align-items: center;
+            justify-content: center;
+            animation: modalBgIn 0.3s ease-out;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        @keyframes modalBgIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: 18px;
+            width: 92%;
+            max-width: 720px;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+            padding: 2rem;
+            position: relative;
+            animation: modalSlideIn 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-secondary);
+            color: var(--text-tertiary);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .modal-close:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-right: 2.5rem;
+        }
+
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .topic-detail-content h4 {
+            font-size: 0.68rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--blue-deep);
+            margin-bottom: 0.6rem;
+            margin-top: 1.25rem;
+        }
+
+        .topic-detail-content h4:first-child { margin-top: 0; }
+
+        .topic-detail-content p, .topic-detail-content li {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .topic-detail-content ul { list-style: none; margin-bottom: 0.5rem; }
+
+        .topic-detail-content ul li {
+            padding: 0.25rem 0 0.25rem 1.2rem;
+            position: relative;
+        }
+
+        .topic-detail-content ul li::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0.65rem;
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green-light);
+        }
+
+        .formula-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            color: var(--text);
+            overflow-x: auto;
+            white-space: pre-line;
+        }
+
+        .example-box {
+            background: var(--green-pale);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
+            border-left: 3px solid var(--green);
+        }
+
+        .example-box.example-collapsible {
+            padding: 0;
+            border-left-width: 0;
+            border: 1px solid rgba(123, 200, 164, 0.35);
+            overflow: hidden;
+        }
+
+        .example-toggle {
+            width: 100%;
+            border: none;
+            background: transparent;
+            color: var(--green-deep);
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.1rem;
+            border-bottom: 1px solid transparent;
+            transition: var(--transition);
+        }
+
+        .example-toggle:hover {
+            background: rgba(123, 200, 164, 0.14);
+        }
+
+        .example-toggle[aria-expanded="true"] {
+            border-bottom-color: rgba(123, 200, 164, 0.35);
+        }
+
+        .example-toggle-icon {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            line-height: 1;
+        }
+
+        .example-content {
+            padding: 0.9rem 1.1rem 1rem;
+        }
+
+        .example-box .example-label {
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--green-deep);
+            margin-bottom: 0.4rem;
+        }
+
+        .example-box p { font-size: 0.85rem; color: var(--text); }
+
+        .pitfall-box {
+            background: var(--red-pale);
+            border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem;
+            margin: 0.75rem 0;
+            border-left: 3px solid var(--red);
+        }
+
+        .pitfall-box .pitfall-label {
+            font-size: 0.68rem; font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--red);
+            margin-bottom: 0.4rem;
+        }
+
+        .pitfall-box p { font-size: 0.85rem; color: var(--text); }
+
+        .quiz-score {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .score-ring {
+            width: 48px; height: 48px;
+            position: relative;
+        }
+
+        .score-ring svg { transform: rotate(-90deg); }
+
+        .score-ring circle { fill: none; stroke-width: 4; }
+
+        .score-ring .track { stroke: var(--border); }
+
+        .score-ring .fill {
+            stroke: var(--blue);
+            stroke-dasharray: 138.2;
+            stroke-dashoffset: 138.2;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .score-ring .score-text {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .score-label {
+            font-size: 0.78rem;
+            color: var(--text-tertiary);
+            font-weight: 500;
+        }
+
+        .quiz-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: var(--transition);
+        }
+
+        .quiz-card.answered-correct {
+            border-color: var(--green);
+            background: var(--green-pale);
+        }
+
+        .quiz-card.answered-wrong {
+            border-color: var(--red);
+            animation: shake 0.5s ease-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-4px); }
+            80% { transform: translateX(4px); }
+        }
+
+        .quiz-card .q-number {
+            font-size: 0.65rem; font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue-deep);
+            margin-bottom: 0.5rem;
+        }
+
+        .quiz-card .q-difficulty {
+            float: right;
+            padding: 0.1rem 0.5rem;
+            font-size: 0.62rem; font-weight: 600;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .quiz-card .q-text {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .quiz-options { display: grid; gap: 0.5rem; }
+
+        .quiz-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+        }
+
+        .quiz-option:hover:not(.disabled) {
+            border-color: var(--blue);
+            background: var(--blue-pale);
+            color: var(--text);
+        }
+
+        .quiz-option .option-letter {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.72rem; font-weight: 700;
+            color: var(--text-tertiary);
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .quiz-option:hover:not(.disabled) .option-letter {
+            background: var(--blue);
+            color: #fff;
+        }
+
+        .quiz-option.selected-correct {
+            border-color: var(--green);
+            background: var(--green-pale);
+            color: var(--text);
+        }
+        .quiz-option.selected-correct .option-letter { background: var(--green); color: #fff; }
+
+        .quiz-option.selected-wrong {
+            border-color: var(--red);
+            background: var(--red-pale);
+            color: var(--text);
+        }
+        .quiz-option.selected-wrong .option-letter { background: var(--red); color: #fff; }
+
+        .quiz-option.reveal-correct {
+            border-color: var(--green);
+            background: var(--green-pale);
+        }
+        .quiz-option.reveal-correct .option-letter { background: var(--green); color: #fff; }
+
+        .quiz-option.disabled { cursor: default; opacity: 0.7; }
+
+        .quiz-explanation {
+            margin-top: 0.75rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius-sm);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            display: none;
+        }
+        .quiz-explanation.visible { display: block; animation: detailReveal 0.3s ease-out; }
+        .quiz-explanation strong { color: var(--text); }
+
+        .quiz-reset-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.6rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            background: var(--bg-card);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 1rem;
+        }
+
+        .quiz-reset-btn:hover {
+            border-color: var(--blue);
+            color: var(--blue-deep);
+            background: var(--blue-pale);
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px; height: 10px;
+            top: -10px;
+            animation: confettiFall var(--fall-dur) var(--fall-delay) ease-in forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(var(--rotation)) scale(0.5); opacity: 0; }
+        }
+
+        @keyframes detailReveal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .divider { height: 1px; background: var(--border); margin: 2rem 0; }
+
+        .footer {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.7rem;
+            color: var(--text-quaternary);
+        }
+
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes slideUp { 0% { opacity: 0; transform: translateY(12px); } 100% { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+            .page { padding: 1.5rem; }
+            .title { font-size: 1.8rem; }
+            .topics-grid { grid-template-columns: 1fr; }
+            .flow { grid-template-columns: 1fr 1fr; gap: 1rem; }
+            .flow-track, .flow-progress { display: none; }
+            .comparison-table { font-size: 0.75rem; }
+            .modal-box { padding: 1.25rem; width: 96%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-delay: 0ms !important;
+                transition-duration: 0.01ms !important;
+            }
+            .particle-canvas { display: none; }
+            .topic-card { opacity: 1; transform: none; }
+            .reveal-on-scroll { opacity: 1; transform: none; }
+        }
+
+        @media print {
+            .page { padding: 1.5rem; }
+            .particle-canvas { display: none; }
+            .topic-card, .quiz-card { break-inside: avoid; }
+        }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .reveal-on-scroll.revealed { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+    <canvas class="particle-canvas" id="particleCanvas"></canvas>
+
+    <div class="page">
+        <!-- Header -->
+        <div class="header-bar">
+            <div class="header-logo">
+            </div>
+            <span class="header-text">AI / LLM Learning Module</span>
+        </div>
+
+        <h1 class="title">AI & LLM Integration Patterns</h1>
+        <p class="intro">
+            A structured learning path exploring how large language models are integrated into forecast simulation tools. Each topic connects AI architecture decisions to concepts you already know from economics and statistics.
+        </p>
+
+        <!-- Progress -->
+        <div class="progress-bar-container">
+            <div class="progress-label">
+                <span id="progressLabelText">Module Progress - AI Chatbot Assistant</span>
+                <span class="progress-actions">
+                    <span id="progressPercent">0%</span>
+                    <button class="reset-progress-btn" type="button" onclick="resetProgress()">Reset Progress</button>
+                </span>
+            </div>
+        </div>
+
+        <!-- Flow -->
+        <div class="flow reveal-on-scroll">
+            <div class="flow-track" aria-hidden="true"></div>
+            <div class="flow-progress" id="flowProgressFill" aria-hidden="true"></div>
+            <div class="step" data-step="learn">
+                <div class="dot">1</div>
+                <h3>Learn</h3>
+                <p>Read through and understand the lesson content per topic.</p>
+                <div class="step-meter"><div class="step-meter-fill" id="learnMeterFill"></div></div>
+                <div class="step-status" id="learnProgressText">0/0 topics read</div>
+            </div>
+            <div class="step" data-step="connect">
+                <div class="dot">2</div>
+                <h3>Connect</h3>
+                <p>Read through each Economics Parallel per topic.</p>
+                <div class="step-meter"><div class="step-meter-fill" id="connectMeterFill"></div></div>
+                <div class="step-status" id="connectProgressText">0/0 parallels read</div>
+            </div>
+            <div class="step" data-step="test">
+                <div class="dot">3</div>
+                <h3>Test</h3>
+                <p>Hit "Start Quiz" to open graded questions.</p>
+                <div class="step-status" id="testStatusText">Quiz not opened</div>
+            </div>
+            <div class="step" data-step="master">
+                <div class="dot">4</div>
+                <h3>Master</h3>
+                <p>Step completes only when both quizzes are 80%+ and fully answered.</p>
+                <div class="step-status" id="masterStatusText">Need 80%+ on both quizzes</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Tabs -->
+        <div class="tab-bar">
+            <button class="tab-btn active" data-tab="chatbot" onclick="switchTab('chatbot')">
+                AI Chatbot Assistant <span class="tab-badge">4 topics</span>
+            </button>
+            <button class="tab-btn" data-tab="intelligence" onclick="switchTab('intelligence')">
+                Market Intelligence Engine <span class="tab-badge">5 topics</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: Chatbot -->
+        <div class="tab-content active" id="tab-chatbot">
+            <div class="topics-grid" id="chatbot-topics">
+
+                <div class="topic-card" onclick="openTopicModal('sa')">
+                    <div class="card-icon blue">SA</div>
+                    <h3>How the Chatbot Works</h3>
+                    <p class="card-subtitle">Client-server architecture that sends full simulator context with every LLM request for situation-aware responses.</p>
+                    <span class="card-tag beginner">Foundational</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('ap')">
+                    <div class="card-icon green">AP</div>
+                    <h3>Executable Actions</h3>
+                    <p class="card-subtitle">How the chatbot bridges natural language and direct manipulation by returning both text and executable commands.</p>
+                    <span class="card-tag intermediate">Intermediate</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('dk')">
+                    <div class="card-icon orange">DK</div>
+                    <h3>The System Prompt</h3>
+                    <p class="card-subtitle">A 200+ line domain knowledge document that encodes product taxonomies, event mechanics, and business rules.</p>
+                    <span class="card-tag intermediate">Intermediate</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('ct')">
+                    <div class="card-icon purple">CT</div>
+                    <h3>Stateless Context Management</h3>
+                    <p class="card-subtitle">How the system reconstructs full context from scratch on every request to guarantee consistency.</p>
+                    <span class="card-tag advanced">Advanced</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+            </div>
+
+            <!-- Chatbot Quiz Prompt -->
+            <div class="quiz-prompt reveal-on-scroll">
+                <h3>Ready to test your knowledge?</h3>
+                <p>5 graded questions covering system architecture, action protocols, domain knowledge, and context management.</p>
+                <button class="start-quiz-btn" onclick="openQuizModal('chatbot')">
+                    Start Quiz <span class="btn-arrow">&#8594;</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- TAB 2: Intelligence -->
+        <div class="tab-content" id="tab-intelligence">
+            <div class="topics-grid" id="intelligence-topics">
+
+                <div class="topic-card" onclick="openTopicModal('oa')">
+                    <div class="card-icon blue">OA</div>
+                    <h3>OpenAI as Smart Data Collector</h3>
+                    <p class="card-subtitle">Using GPT-4o-mini purely as a structured data extraction tool with strict anti-hallucination rules.</p>
+                    <span class="card-tag beginner">Foundational</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('nl')">
+                    <div class="card-icon green">NL</div>
+                    <h3>The Custom NLP Layer</h3>
+                    <p class="card-subtitle">Deterministic Python code that validates, scores, classifies, and quantifies each extracted event.</p>
+                    <span class="card-tag intermediate">Intermediate</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('im')">
+                    <div class="card-icon orange">IM</div>
+                    <h3>Quantifying Event Impact</h3>
+                    <p class="card-subtitle">A strict hierarchy for converting validated events into percentage impact estimates on market share.</p>
+                    <span class="card-tag intermediate">Intermediate</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('se')">
+                    <div class="card-icon purple">SE</div>
+                    <h3>The Simulation Math</h3>
+                    <p class="card-subtitle">Multiplicative model with exponential decay and diminishing returns for combining event impacts.</p>
+                    <span class="card-tag advanced">Advanced</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+                <div class="topic-card" onclick="openTopicModal('db')" style="grid-column: 1 / -1;">
+                    <div class="card-icon red">DB</div>
+                    <h3>Event Storage & Learning</h3>
+                    <p class="card-subtitle">SQLite persistence layer that creates a feedback loop for improving estimate quality over time.</p>
+                    <span class="card-tag beginner">Foundational</span>
+                    <div class="card-toggle">Click to learn more &#8594;</div>
+                </div>
+
+            </div>
+
+            <!-- Intelligence Quiz Prompt -->
+            <div class="quiz-prompt reveal-on-scroll">
+                <h3>Test your intelligence engine knowledge</h3>
+                <p>6 graded questions on data extraction, NLP validation, impact modeling, simulation math, and persistence.</p>
+                <button class="start-quiz-btn" onclick="openQuizModal('intelligence')">
+                    Start Quiz <span class="btn-arrow">&#8594;</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Economics Bridge -->
+        <div class="divider"></div>
+        <div class="bridge-prompt reveal-on-scroll" onclick="openBridgeModal()">
+            <h3>Economics to AI Architecture Bridge</h3>
+            <p>You already know more than you think. See how concepts from your economics training map directly to AI system design patterns.</p>
+            <button class="bridge-btn" onclick="event.stopPropagation(); openBridgeModal()">
+                View Concept Map <span>&#8594;</span>
+            </button>
+        </div>
+
+        <div class="footer">
+            <span>AI/LLM Learning Module created for Arjun Shirgaokar</span>
+            <span>&copy; Findability Sciences 2026</span>
+        </div>
+    </div>
+
+    <!-- TOPIC DETAIL MODAL -->
+    <div class="modal-overlay" id="modal-topic" onclick="closeModalOnBg(event, 'topic')">
+        <div class="modal-box" id="topic-modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuizModal('topic')">&#10005;</button>
+            <div class="modal-header">
+                <h2 id="topic-modal-title">Topic</h2>
+            </div>
+            <div class="topic-detail-content" id="topic-modal-body"></div>
+        </div>
+    </div>
+
+    <!-- BRIDGE MODAL -->
+    <div class="modal-overlay" id="modal-bridge" onclick="closeModalOnBg(event, 'bridge')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuizModal('bridge')">&#10005;</button>
+            <div class="modal-header">
+                <h2>Economics to AI Architecture Bridge</h2>
+            </div>
+            <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem; line-height: 1.5;">
+                You already know more than you think. Here is how concepts from your economics training map directly to AI system design patterns.
+            </p>
+            <table class="comparison-table">
+                <thead><tr><th>AI / System Design Concept</th><th>Economics Equivalent</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>API request-response</strong></td><td>Supply and demand equilibrium (price adjusts each transaction)</td></tr>
+                    <tr><td><strong>Stateless architecture</strong></td><td>Rational expectations (all current info, no history dependence)</td></tr>
+                    <tr><td><strong>Temperature parameter</strong></td><td>Risk aversion coefficient (controls randomness vs. predictability)</td></tr>
+                    <tr><td><strong>System prompt</strong></td><td>Axiomatic framework (fixed rules that govern all reasoning)</td></tr>
+                    <tr><td><strong>Structured JSON output</strong></td><td>National accounts framework (standardized data structure)</td></tr>
+                    <tr><td><strong>Trust scoring</strong></td><td>Credit ratings (summarize complex info into actionable scores)</td></tr>
+                    <tr><td><strong>Exponential decay</strong></td><td>Impulse response functions (shock effect diminishes over time)</td></tr>
+                    <tr><td><strong>Diminishing returns formula</strong></td><td>Decreasing marginal returns (each additional input has less effect)</td></tr>
+                    <tr><td><strong>Confidence intervals</strong></td><td>Forecast error bands (quantified uncertainty around estimates)</td></tr>
+                    <tr><td><strong>Historical analogues</strong></td><td>Case study method (past events inform future expectations)</td></tr>
+                    <tr><td><strong>Bayesian updating</strong></td><td>Adaptive expectations refinement (update beliefs with new data)</td></tr>
+                    <tr><td><strong>Token budgeting</strong></td><td>Budget constraints (finite resources allocated across competing uses)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- CHATBOT QUIZ MODAL -->
+    <div class="modal-overlay" id="modal-chatbot" onclick="closeModalOnBg(event, 'chatbot')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuizModal('chatbot')">&#10005;</button>
+            <div class="modal-header">
+                <h2>AI Chatbot Quiz</h2>
+                <div class="quiz-score">
+                    <div class="score-ring">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle class="track" cx="24" cy="24" r="22"/>
+                            <circle class="fill" id="chatbot-score-ring" cx="24" cy="24" r="22"/>
+                        </svg>
+                        <span class="score-text" id="chatbot-score-text">0/5</span>
+                    </div>
+                    <span class="score-label">Score</span>
+                </div>
+            </div>
+            <div id="chatbot-quiz-container"></div>
+            <button class="quiz-reset-btn" onclick="resetQuiz('chatbot')">&#8634; Reset Quiz</button>
+        </div>
+    </div>
+
+    <!-- INTELLIGENCE QUIZ MODAL -->
+    <div class="modal-overlay" id="modal-intelligence" onclick="closeModalOnBg(event, 'intelligence')">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeQuizModal('intelligence')">&#10005;</button>
+            <div class="modal-header">
+                <h2>Market Intelligence Quiz</h2>
+                <div class="quiz-score">
+                    <div class="score-ring">
+                        <svg width="48" height="48" viewBox="0 0 48 48">
+                            <circle class="track" cx="24" cy="24" r="22"/>
+                            <circle class="fill" id="intelligence-score-ring" cx="24" cy="24" r="22"/>
+                        </svg>
+                        <span class="score-text" id="intelligence-score-text">0/6</span>
+                    </div>
+                    <span class="score-label">Score</span>
+                </div>
+            </div>
+            <div id="intelligence-quiz-container"></div>
+            <button class="quiz-reset-btn" onclick="resetQuiz('intelligence')">&#8634; Reset Quiz</button>
+        </div>
+    </div>
+
+    <script>
+    // ============================================
+    // TOPIC CONTENT DATA
+    // ============================================
+    const topicContent = {
+        sa: {
+            title: 'How the Chatbot Works',
+            body: `
+                <h4>How It Works</h4>
+                <p>The chatbot is built on a client-server architecture. The frontend maintains a ChatContext that tracks the full simulator state -- current product selection, baseline values, simulation results, locked events. When a user sends a message, the frontend POSTs both the message AND this simulator context to a backend /api/chat endpoint. The backend constructs a prompt combining a detailed system prompt (domain knowledge) with the current simulator state, sends it to OpenAI's GPT-4o-mini, and returns a structured JSON response with both a text message and optional executable actions.</p>
+                <h4>Key Concepts</h4>
+                <ul>
+                    <li><strong>Context Window:</strong> The LLM receives the full simulator state with every message so it can give situation-aware answers</li>
+                    <li><strong>System Prompt:</strong> A 200+ line domain knowledge document that teaches the LLM about product categories, event types, chart data series, and business rules</li>
+                    <li><strong>Structured Output:</strong> The API returns JSON with separate "message" and "action" fields, so the frontend can both display text AND execute commands</li>
+                    <li><strong>Temperature 0.7:</strong> Balances creativity with consistency -- lower than creative writing, higher than pure extraction</li>
+                </ul>
+                <div class="formula-box">Request = System Prompt + Simulator Context + User Question -> LLM -> {message, action}</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>Think of the system prompt as giving the LLM a complete textbook on your domain -- like how an economics advisor needs to understand IS-LM models before they can answer policy questions. The context window is like providing current economic indicators alongside each question.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The LLM has no memory between requests. Every message sends the full context again. This is like an advisor who reads the entire briefing book fresh each time you ask a question -- consistent but expensive in tokens.</p></div>
+            `
+        },
+        ap: {
+            title: 'Executable Actions',
+            body: `
+                <h4>How It Works</h4>
+                <p>The chatbot does not just answer questions -- it can execute changes on the simulator. When the LLM's response includes an "action" object, the frontend parses the action type and parameters, then programmatically adjusts the dashboard. This bridges natural language and direct manipulation.</p>
+                <h4>Key Action Types</h4>
+                <ul>
+                    <li><strong>export:</strong> Triggers CSV download of current simulation results</li>
+                    <li><strong>navigate:</strong> Scrolls to a specific panel (market share, promotions, etc.)</li>
+                    <li><strong>adjust_market_share:</strong> Sets relative market share delta from natural language ("increase share by 5%")</li>
+                    <li><strong>set_competitive_event:</strong> Creates a single-month competitive intelligence event</li>
+                    <li><strong>set_competitive_gradual:</strong> Creates a gradual shift over a date range</li>
+                    <li><strong>set_competitive_recovery:</strong> Creates a loss-then-recovery pattern</li>
+                </ul>
+                <div class="formula-box">User says "increase market share by 5%" -> LLM returns {action: {type: "adjust_market_share", delta: 5}} -> Frontend executes setMarketShareDelta(5)</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>This is similar to how central banks issue both forward guidance (text communication) and policy actions (rate changes) simultaneously. The chatbot's dual output -- message plus action -- mirrors this: explain the reasoning AND execute the change.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>Actions are deterministic but the LLM's decision to trigger them is probabilistic. The same question phrased differently might or might not trigger an action. Always validate that the action matches your intent before confirming.</p></div>
+            `
+        },
+        dk: {
+            title: 'The System Prompt',
+            body: `
+                <h4>How It Works</h4>
+                <p>The system prompt is the core of the chatbot's domain expertise. At 200+ lines, it encodes product categories, classification structures, chart data series meanings, market share adjustment modes, event types with their mechanics, effect toggles, and warning thresholds. It is essentially a compressed operations manual that the LLM reads before every interaction.</p>
+                <h4>What It Encodes</h4>
+                <ul>
+                    <li><strong>Product taxonomy</strong> and sub-classifications</li>
+                    <li><strong>Four chart data series:</strong> baseline (blue), simulated (red), delivered (purple), actuals (orange)</li>
+                    <li><strong>Market share modes:</strong> Relative Change, Competitive Intelligence (single event, gradual shift, recovery pattern), Historical Trend, Macro Scenario</li>
+                    <li><strong>Event mechanics:</strong> promotions with half-year logic, shortages capped at 1.0, regulations, custom events with weight ranges</li>
+                    <li><strong>Business rules:</strong> seasonality patterns, spillover effects, dampening factors</li>
+                </ul>
+                <div class="formula-box">LLM Knowledge = System Prompt (static domain rules) + Context (dynamic simulator state) + User Query (intent)</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>The system prompt functions like the axioms and identities in economic theory -- GDP = C + I + G + NX does not change between questions. The simulator context is like current quarter data. Together they let the model reason about specific situations using general principles.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The system prompt is static -- it does not learn from user interactions. If business rules change (new product category, revised event mechanics), the prompt must be manually updated. This is a maintenance cost that scales with domain complexity.</p></div>
+            `
+        },
+        ct: {
+            title: 'Stateless Context Management',
+            body: `
+                <h4>How It Works</h4>
+                <p>LLMs are stateless -- they have no memory between API calls. The chatbot solves this by reconstructing context from scratch with every message. The frontend's ChatContext tracks: current product, classification, fiscal year, baseline totals, simulated totals, locked event counts, and warning months. This gets serialized into a context string and sent alongside each user message.</p>
+                <h4>Design Tradeoffs</h4>
+                <ul>
+                    <li><strong>Token cost:</strong> Full context on every request means higher token usage, but guarantees consistency</li>
+                    <li><strong>No drift:</strong> Since context is rebuilt from source of truth (the actual simulator state), the LLM cannot accumulate errors across a conversation</li>
+                    <li><strong>Latency:</strong> Each request is independent, so there is no session state to manage on the backend</li>
+                    <li><strong>Scalability:</strong> Stateless design means any server instance can handle any request -- no sticky sessions needed</li>
+                </ul>
+                <div class="formula-box">Tokens per request = ~800 (system prompt) + ~200 (context) + ~50 (user message) = ~1050 input tokens. At GPT-4o-mini pricing, this is fractions of a cent per interaction.</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>This is the rational expectations approach to chatbot design. Rather than assuming the LLM "remembers" past interactions (adaptive expectations), each request provides complete current information. Like rational agents in macro models, the LLM makes decisions based on all currently available information, not on accumulated history.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The tradeoff is that conversational memory is lost. If a user says "do that again but for March," the LLM has no concept of what "that" was. The frontend could maintain a message history, but sending long histories increases cost and risks hitting context window limits.</p></div>
+            `
+        },
+        oa: {
+            title: 'OpenAI as Smart Data Collector',
+            body: `
+                <h4>How It Works</h4>
+                <p>The Market Intelligence system uses OpenAI GPT-4o-mini NOT as a decision-maker, but purely as a structured data extraction tool. When an article or news snippet is fed in, the LLM's job is to identify competitive events -- product launches, pricing changes, supply disruptions, regulatory changes, market entries/exits. It extracts structured fields (company, event type, date, affected products, geographic scope) and returns them as JSON. The LLM is explicitly instructed: "ONLY extract information that is EXPLICITLY stated in the text. NEVER infer, assume, or make up impact percentages."</p>
+                <h4>Key Design Choices</h4>
+                <ul>
+                    <li><strong>Temperature 0.1:</strong> Extremely low creativity -- we want consistent, repeatable extraction, not creative interpretation</li>
+                    <li><strong>JSON response format enforced:</strong> The API is configured to return structured JSON, eliminating parsing ambiguity</li>
+                    <li><strong>Strict anti-hallucination rules:</strong> The prompt includes 6 critical rules all focused on preventing fabrication</li>
+                    <li><strong>Confidence scoring:</strong> Each extracted event gets high/medium/low confidence with a required reason</li>
+                    <li><strong>Supporting quotes required:</strong> Every extraction must include the exact text from the source that supports it</li>
+                </ul>
+                <div class="formula-box">Article Text -> GPT-4o-mini (temp=0.1, strict prompt) -> {event_type, company, headline, date, products, confidence, supporting_quote}</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>Think of the LLM as a research assistant reading through Federal Reserve meeting minutes. You do not want them to predict policy -- you want them to accurately extract what was said, who said it, and what specific data was referenced. The creative interpretation happens later, by economists (or in our case, by the custom NLP layer).</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>Even with temperature 0.1 and strict prompts, LLMs can still hallucinate. That is why every extraction requires a supporting quote and a confidence score. The system treats the LLM output as "unverified intelligence" that passes through validation before being used.</p></div>
+            `
+        },
+        nl: {
+            title: 'The Custom NLP Layer',
+            body: `
+                <h4>How It Works</h4>
+                <p>After OpenAI extracts raw events, our custom NLP layer takes over. This is NOT an LLM -- it is deterministic Python code that validates, scores, classifies, and quantifies each event. The NLP extractor defines event taxonomies with expected impact ranges grounded in empirical research (LBNL-326E for brand elasticity, IEA data for regulatory impacts, HARDI data for supply disruptions). It validates extraction quality, assigns trust scores, and stores events in a SQLite database for persistence.</p>
+                <h4>What The NLP Layer Does</h4>
+                <ul>
+                    <li><strong>Event type validation:</strong> Checks extracted event_type against a defined taxonomy of 7 types</li>
+                    <li><strong>Quality scoring:</strong> Validates completeness (headline, supporting quote, confidence reason) and assigns a 0-1 quality score</li>
+                    <li><strong>Impact range assignment:</strong> Maps each event type to empirically-grounded impact ranges (e.g., product_launch: -5% to -2% based on LBNL brand elasticity ~2.0)</li>
+                    <li><strong>Deduplication:</strong> MD5 hashing of event content prevents the same event from being stored twice</li>
+                    <li><strong>Persistence:</strong> Events are stored in SQLite with full metadata for historical analysis</li>
+                </ul>
+                <div class="formula-box">quality_score starts at 1.0, minus 0.2 for missing headline, minus 0.3 for missing supporting quote, minus 0.2 for unknown event type, minus 0.2 for low confidence. Event is valid if quality_score >= 0.5</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>This is the difference between data collection and econometric analysis. The LLM is like a survey enumerator -- it gathers raw responses. The NLP layer is like the economist who cleans the data, validates it against known distributions, flags outliers, and prepares it for modeling. You would never let survey data flow directly into a regression without cleaning.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The quality scoring is rule-based and can be too strict or too lenient. A perfectly valid event with an unusual structure might score below 0.5 and get rejected. Conversely, a well-structured hallucination might pass validation. That is why user review and trust scores exist as additional gates.</p></div>
+            `
+        },
+        im: {
+            title: 'Quantifying Event Impact',
+            body: `
+                <h4>How It Works</h4>
+                <p>The Impact Model converts validated events into percentage impact estimates on market share. It follows a strict hierarchy: (1) user-specified overrides, (2) explicitly stated impacts from the source text, (3) historical analogues from the database, (4) conservative reference ranges. When using reference ranges, confidence intervals are computed: for historical analogues, CI = mean +/- 1.96 * std_dev. For reference ranges, CI is the range itself widened by 1 percentage point on each side.</p>
+                <h4>The Impact Hierarchy</h4>
+                <ul>
+                    <li><strong>User override (highest priority):</strong> If a user manually adjusts impact, that value is used directly with +/-1% CI</li>
+                    <li><strong>Stated impact:</strong> If the source article explicitly mentions a percentage, that is used with +/-1.5% CI and "medium" uncertainty</li>
+                    <li><strong>Historical analogues:</strong> If similar past events exist in the database, their observed impacts are averaged with computed standard deviation. Requires matching event type, optionally company and product</li>
+                    <li><strong>Reference ranges (lowest priority):</strong> Falls back to empirically-grounded industry ranges with "high" uncertainty and explicit warnings</li>
+                </ul>
+                <div class="formula-box">Reference ranges (grounded in research):
+  product_launch: -5% to -2% (LBNL brand elasticity ~2.0)
+  pricing_change: -10% to +10% (cross-price elasticity ~2.0)
+  supply_disruption: +5% to +15% (COVID HARDI data)
+  regulatory_change: -15% to +20% (IRA/IEA estimates)
+  market_entry: -5% to -2%
+  market_exit: +3% to +10%</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>This hierarchy mirrors how economists estimate policy impacts. First check if there is a natural experiment (stated impact). Then look for historical precedent (analogues). Only then fall back to theoretical elasticities (reference ranges). Each step down increases uncertainty -- just like moving from RCT evidence to cross-sectional correlations.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The "midpoint of the range" default for point estimates is naive for bidirectional ranges. A pricing_change range of -10% to +10% has a midpoint of 0% -- meaningless. The system addresses this with directional defaults (e.g., assume competitor price cuts hurt us), but this is still an assumption that should be scrutinized.</p></div>
+            `
+        },
+        se: {
+            title: 'The Simulation Math',
+            body: `
+                <h4>How It Works</h4>
+                <p>The simulation engine combines intelligence event impacts with baseline forecasts using a multiplicative model with exponential decay and diminishing returns. Each event's impact decays exponentially from its start date. Multiple events are combined, then run through a diminishing returns function to prevent unrealistic stacking. The final simulation multiplies baseline values by event multipliers, market share adjustments, and intelligence adjustments.</p>
+                <h4>The Math</h4>
+                <ul>
+                    <li><strong>Exponential decay:</strong> lambda = -ln(0.1) / duration_months. This means impact reaches 10% of original value at the end of the duration period</li>
+                    <li><strong>Trust-weighted impact:</strong> impact = point_estimate * trust_score * exp(-lambda * months_since_event)</li>
+                    <li><strong>Diminishing returns:</strong> effective_impact = raw_impact / (1 + k * |raw_impact|) where k = 0.1</li>
+                    <li><strong>Multiplier conversion:</strong> monthly_multiplier = 1 + (effective_impact / 100), clamped to [0.80, 1.20]</li>
+                    <li><strong>Final value:</strong> simulated = baseline * event_multiplier * market_share_adj * intel_multiplier</li>
+                </ul>
+                <div class="formula-box">decay(t) = exp(-lambda * t) where lambda = ln(10) / duration
+
+For a 6-month event:
+  Month 0: 100% impact
+  Month 3: ~32% impact
+  Month 6: 10% impact (by design)
+
+Diminishing returns example:
+  Three +5% events raw = +15%
+  Effective = 15 / (1 + 0.1 * 15) = 6.0%
+  Without DR: 15%. With DR: 6.0%</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>The exponential decay model is analogous to impulse response functions in VAR models. A shock enters the system at time 0 and its effect diminishes over time at a rate determined by the system's parameters. The diminishing returns function is conceptually similar to decreasing marginal returns in production theory -- each additional event has less incremental effect.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>The 0.80-1.20 clamp means intelligence events can never shift forecasts more than 20% in either direction. This is a safety rail, not a theoretical limit. In extreme scenarios (major regulation + supply disruption + market exit simultaneously), the true impact could exceed 20%, but the system deliberately prevents this to avoid runaway forecasts.</p></div>
+            `
+        },
+        db: {
+            title: 'Event Storage & Learning',
+            body: `
+                <h4>How It Works</h4>
+                <p>The EventStore uses SQLite to persist intelligence events, predictions, alerts, and historical impacts across sessions. Events are stored with full metadata: source URL, trust score, extraction date, impact estimates, user adjustments, and expiration dates. The predictions table links forecasts to the events that drove them, creating an audit trail. The historical_impacts table enables the system to learn from past accuracy -- when an event's actual impact is known, it becomes a training example for future analogue matching.</p>
+                <h4>Database Schema</h4>
+                <ul>
+                    <li><strong>intelligence_events:</strong> The core table. Stores event_type, company, headline, trust_score, impact estimates (low/high), user adjustments, supporting quotes, and expiration dates</li>
+                    <li><strong>predictions:</strong> Links product, target month, baseline value, predicted value, confidence intervals, and the events that contributed to each prediction</li>
+                    <li><strong>alerts:</strong> Severity-categorized notifications with affected products/months, suggested actions, and read/dismissed status</li>
+                    <li><strong>historical_impacts:</strong> The learning table. Stores observed_impact and duration_months for past events, enabling data-driven analogue matching over time</li>
+                </ul>
+                <div class="formula-box">Learning loop:
+1. Extract event -> store in intelligence_events
+2. Generate prediction -> store in predictions (linked to events)
+3. Observe actual outcome -> store in historical_impacts
+4. Next similar event -> use historical_impacts for analogue matching
+
+This creates a feedback loop that improves estimate quality over time.</div>
+                <div class="example-box"><div class="example-label">Economics Parallel</div><p>This is Bayesian updating in practice. Your prior (reference range) gets updated with each observed outcome (historical impact). Over time, the system's estimates converge toward the true impact distribution for each event type -- similar to how econometric models improve as sample sizes grow.</p></div>
+                <div class="pitfall-box"><div class="pitfall-label">Common Pitfall</div><p>SQLite is a file-based database that does not handle concurrent writes well. In a multi-user production environment, this would need to be replaced with PostgreSQL or similar. The current architecture prioritizes simplicity over scalability.</p></div>
+            `
+        }
+    };
+
+    // ============================================
+    // QUIZ DATA
+    // ============================================
+    function shuffleOptions(question) {
+        const indices = question.options.map((_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        const shuffledOptions = indices.map(i => question.options[i]);
+        const newCorrect = indices.indexOf(question.correct);
+        return { ...question, options: shuffledOptions, correct: newCorrect };
+    }
+
+    const quizDataRaw = {
+        chatbot: [
+            {
+                question: "The chatbot sends the full simulator state with every message. What architectural pattern does this follow?",
+                options: [
+                    "Stateful session management with server-side memory",
+                    "Stateless request-response where each call is self-contained",
+                    "Event sourcing with append-only logs",
+                    "Pub-sub messaging with topic subscriptions"
+                ],
+                correct: 1, difficulty: "beginner",
+                explanation: "Each request contains all needed context. The server maintains no session state between calls, making this a stateless architecture -- similar to RESTful API design principles."
+            },
+            {
+                question: "The system prompt uses temperature 0.7 for the chatbot but the intelligence extractor uses 0.1. Why the difference?",
+                options: [
+                    "0.7 is always better for longer prompts",
+                    "The chatbot needs some creative flexibility in phrasing responses while the extractor needs maximum consistency and minimal variation",
+                    "Lower temperature makes the model faster",
+                    "Temperature only affects response length, not content"
+                ],
+                correct: 1, difficulty: "intermediate",
+                explanation: "Temperature controls randomness. The chatbot benefits from natural-sounding varied responses (0.7), while the extractor needs identical outputs for identical inputs to ensure reliable data extraction (0.1)."
+            },
+            {
+                question: "A user asks the chatbot 'do that again but for March.' The chatbot cannot fulfill this request. Why?",
+                options: [
+                    "The chatbot has a bug in its date parsing",
+                    "March data is not available in the system",
+                    "The LLM is stateless -- it has no concept of what 'that' refers to from a previous interaction",
+                    "The user needs administrator permissions for March data"
+                ],
+                correct: 2, difficulty: "intermediate",
+                explanation: "Each API call is independent. The LLM receives the current simulator state but not the history of previous interactions, so anaphoric references like 'that' have no referent."
+            },
+            {
+                question: "The chatbot returns both a 'message' (text) and an 'action' (executable command). What is the key risk of this dual-output design?",
+                options: [
+                    "It doubles the API cost",
+                    "Text and action could contradict each other -- the message might say one thing while the action does something different",
+                    "It makes the response too long for the frontend to parse",
+                    "Users might read the message but ignore the action"
+                ],
+                correct: 1, difficulty: "advanced",
+                explanation: "Since both outputs are generated probabilistically, they can be inconsistent. The message might explain a 5% increase while the action sets 3%. The frontend should validate action parameters against the message content."
+            },
+            {
+                question: "Why does the system encode 200+ lines of domain knowledge in the system prompt rather than fine-tuning the model?",
+                options: [
+                    "Fine-tuning is illegal for commercial use",
+                    "System prompts allow rapid iteration -- you can update domain rules instantly without retraining, and the same base model serves multiple use cases",
+                    "Fine-tuning would make the model too accurate",
+                    "System prompts are free while fine-tuning costs money"
+                ],
+                correct: 1, difficulty: "beginner",
+                explanation: "System prompts are editable at deployment time with zero training cost. Fine-tuning requires data preparation, training runs, and creates a model that only works for one domain. For rapidly evolving business rules, prompt engineering is far more practical."
+            }
+        ],
+        intelligence: [
+            {
+                question: "The intelligence system uses OpenAI at temperature 0.1 with strict anti-hallucination rules. What role does the LLM play in this architecture?",
+                options: [
+                    "The LLM makes all forecasting decisions",
+                    "The LLM acts as a structured data extractor -- it reads text and outputs structured fields, but does not make business judgments",
+                    "The LLM trains itself on new data each time",
+                    "The LLM directly modifies the forecast baseline"
+                ],
+                correct: 1, difficulty: "beginner",
+                explanation: "The LLM is deliberately constrained to extraction only. All quantification, scoring, and business logic happens in deterministic Python code downstream. This separation prevents LLM hallucinations from affecting forecasts."
+            },
+            {
+                question: "An extracted event has: headline present, no supporting quote, known event type, medium confidence. What is its quality score?",
+                options: [
+                    "1.0 -- all fields present",
+                    "0.7 -- missing supporting quote costs 0.3 points",
+                    "0.5 -- barely valid",
+                    "0.0 -- immediately rejected"
+                ],
+                correct: 1, difficulty: "intermediate",
+                explanation: "Starting at 1.0: no headline penalty (0), missing quote (-0.3), known type (0), medium confidence (0). Final = 0.7. Since 0.7 >= 0.5, the event passes validation."
+            },
+            {
+                question: "A competitor's pricing change has a reference range of -10% to +10%. Why is the midpoint (0%) a poor default estimate?",
+                options: [
+                    "Because 0% means the event has no effect, which contradicts the fact that it was flagged as significant",
+                    "Because the range should be wider",
+                    "Because negative numbers are not allowed in the model",
+                    "Because the midpoint is always the worst estimate"
+                ],
+                correct: 0, difficulty: "intermediate",
+                explanation: "For bidirectional ranges crossing zero, the midpoint implies no impact -- meaningless for an event worth tracking. The system uses directional defaults instead (e.g., assume competitor price cuts hurt us), placing the estimate in the lower third of the range."
+            },
+            {
+                question: "Three simultaneous events each have +5% raw impact. With the diminishing returns formula (k=0.1), what is the effective combined impact?",
+                options: [
+                    "15% -- impacts add linearly",
+                    "6.0% -- diminishing returns compress the total",
+                    "5% -- only the largest event counts",
+                    "0% -- impacts cancel each other out"
+                ],
+                correct: 1, difficulty: "advanced",
+                explanation: "Raw sum = 15%. Effective = 15 / (1 + 0.1 * 15) = 15 / 2.5 = 6.0%. This prevents unrealistic stacking while still reflecting that multiple events have more impact than one."
+            },
+            {
+                question: "The exponential decay model is designed so that impact reaches 10% of its original value at the end of the duration period. For a 6-month event, approximately what percentage of impact remains at month 3?",
+                options: [
+                    "50% -- linear decay halfway through",
+                    "About 32% -- exponential decay is faster than linear early on",
+                    "0% -- all impact is used in the first month",
+                    "90% -- most impact persists until the end"
+                ],
+                correct: 1, difficulty: "beginner",
+                explanation: "With lambda = ln(10)/6, at month 3: exp(-lambda * 3) = exp(-ln(10)/2) = 1/sqrt(10) ≈ 0.316 or about 32%. Exponential decay means more impact is felt early, unlike linear decay."
+            },
+            {
+                question: "The historical_impacts table stores observed outcomes from past events. How does this create a learning loop?",
+                options: [
+                    "It retrains the OpenAI model automatically",
+                    "Past observed impacts become analogues for estimating future similar events, improving accuracy over time",
+                    "It deletes events that were inaccurate",
+                    "It adjusts the temperature parameter based on past performance"
+                ],
+                correct: 1, difficulty: "intermediate",
+                explanation: "When a new event matches an old event type and company, the model uses the historical observed impact instead of reference ranges. More history means more analogues, which means narrower confidence intervals -- classic sample size effect."
+            }
+        ]
+    };
+
+    let quizData = {};
+    function initQuizData() {
+        quizData = {
+            chatbot: quizDataRaw.chatbot.map(q => shuffleOptions(q)),
+            intelligence: quizDataRaw.intelligence.map(q => shuffleOptions(q))
+        };
+    }
+    initQuizData();
+
+    // ============================================
+    // QUIZ ENGINE
+    // ============================================
+    const quizState = {
+        chatbot: { answered: {}, correct: 0 },
+        intelligence: { answered: {}, correct: 0 }
+    };
+    const tabTopicMap = {
+        chatbot: ['sa', 'ap', 'dk', 'ct'],
+        intelligence: ['oa', 'nl', 'im', 'se', 'db']
+    };
+    const topicToTab = Object.fromEntries(
+        Object.entries(tabTopicMap).flatMap(([tab, topicIds]) => topicIds.map(topicId => [topicId, tab]))
+    );
+    const progressTabLabels = {
+        chatbot: 'AI Chatbot Assistant',
+        intelligence: 'Market Intelligence Engine'
+    };
+    const progressState = {
+        chatbot: { readTopics: new Set(), readExamples: new Set(), quizOpened: false },
+        intelligence: { readTopics: new Set(), readExamples: new Set(), quizOpened: false }
+    };
+    let activeProgressTab = 'chatbot';
+    let activeTopicSession = null;
+    const PROGRESS_STORAGE_KEY = 'ai-llm-learning-module-progress-v1';
+
+    const TOPIC_READ_MIN_MS = 4500;
+    const TOPIC_READ_SCROLL_THRESHOLD = 0.86;
+    const EXAMPLE_READ_MIN_MS = 1800;
+
+    function isValidQuizDataSnapshot(snapshot) {
+        if (!snapshot || typeof snapshot !== 'object') return false;
+        for (const section of ['chatbot', 'intelligence']) {
+            if (!Array.isArray(snapshot[section]) || snapshot[section].length !== quizDataRaw[section].length) return false;
+            for (let i = 0; i < snapshot[section].length; i++) {
+                const savedQ = snapshot[section][i];
+                const rawQ = quizDataRaw[section][i];
+                if (!savedQ || savedQ.question !== rawQ.question) return false;
+                if (!Array.isArray(savedQ.options) || savedQ.options.length !== rawQ.options.length) return false;
+                if (!Number.isInteger(savedQ.correct) || savedQ.correct < 0 || savedQ.correct >= savedQ.options.length) return false;
+            }
+        }
+        return true;
+    }
+
+    function sanitizeAnsweredMap(section, answeredMap) {
+        const sanitized = {};
+        if (!answeredMap || typeof answeredMap !== 'object') return sanitized;
+        const totalQuestions = quizData[section].length;
+        Object.entries(answeredMap).forEach(([qIdxRaw, optIdxRaw]) => {
+            const qIdx = Number(qIdxRaw);
+            const optIdx = Number(optIdxRaw);
+            if (!Number.isInteger(qIdx) || qIdx < 0 || qIdx >= totalQuestions) return;
+            const optionsCount = quizData[section][qIdx].options.length;
+            if (!Number.isInteger(optIdx) || optIdx < 0 || optIdx >= optionsCount) return;
+            sanitized[qIdx] = optIdx;
+        });
+        return sanitized;
+    }
+
+    function countCorrectAnswers(section, answeredMap = quizState[section].answered) {
+        return Object.entries(answeredMap).reduce((sum, [qIdxRaw, selectedIdxRaw]) => {
+            const qIdx = Number(qIdxRaw);
+            const selectedIdx = Number(selectedIdxRaw);
+            const question = quizData[section][qIdx];
+            if (!question) return sum;
+            return sum + (selectedIdx === question.correct ? 1 : 0);
+        }, 0);
+    }
+
+    function savePersistentState() {
+        try {
+            const payload = {
+                activeProgressTab,
+                progressState: {
+                    chatbot: {
+                        readTopics: Array.from(progressState.chatbot.readTopics),
+                        readExamples: Array.from(progressState.chatbot.readExamples),
+                        quizOpened: progressState.chatbot.quizOpened
+                    },
+                    intelligence: {
+                        readTopics: Array.from(progressState.intelligence.readTopics),
+                        readExamples: Array.from(progressState.intelligence.readExamples),
+                        quizOpened: progressState.intelligence.quizOpened
+                    }
+                },
+                quizState: {
+                    chatbot: { answered: quizState.chatbot.answered },
+                    intelligence: { answered: quizState.intelligence.answered }
+                },
+                quizData
+            };
+            localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(payload));
+        } catch (e) {}
+    }
+
+    function loadPersistentState() {
+        try {
+            const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+            if (!raw) return;
+            const parsed = JSON.parse(raw);
+
+            if (parsed && typeof parsed === 'object') {
+                if (parsed.activeProgressTab === 'chatbot' || parsed.activeProgressTab === 'intelligence') {
+                    activeProgressTab = parsed.activeProgressTab;
+                }
+
+                const parsedProgress = parsed.progressState || {};
+                ['chatbot', 'intelligence'].forEach(tab => {
+                    const tabState = parsedProgress[tab] || {};
+                    const validTopics = new Set(tabTopicMap[tab]);
+                    const readTopics = Array.isArray(tabState.readTopics) ? tabState.readTopics : [];
+                    const readExamples = Array.isArray(tabState.readExamples) ? tabState.readExamples : [];
+                    progressState[tab].readTopics = new Set(readTopics.filter(topicId => validTopics.has(topicId)));
+                    progressState[tab].readExamples = new Set(readExamples.filter(topicId => validTopics.has(topicId)));
+                    progressState[tab].quizOpened = !!tabState.quizOpened;
+                });
+
+                const canRestoreQuizAnswers = isValidQuizDataSnapshot(parsed.quizData);
+                if (canRestoreQuizAnswers) {
+                    quizData = parsed.quizData;
+                }
+
+                if (canRestoreQuizAnswers) {
+                    const parsedQuizState = parsed.quizState || {};
+                    ['chatbot', 'intelligence'].forEach(section => {
+                        const answered = sanitizeAnsweredMap(section, parsedQuizState[section]?.answered);
+                        quizState[section].answered = answered;
+                        quizState[section].correct = countCorrectAnswers(section, answered);
+                    });
+                }
+            }
+        } catch (e) {}
+    }
+
+    function getTopicTab(topicId) {
+        return topicToTab[topicId] || 'chatbot';
+    }
+
+    function getTopicModalBox() {
+        return document.getElementById('topic-modal-box');
+    }
+
+    function getTopicReadDepth() {
+        const box = getTopicModalBox();
+        if (!box) return 0;
+        if (box.scrollHeight <= box.clientHeight) return 1;
+        return Math.min(1, (box.scrollTop + box.clientHeight) / box.scrollHeight);
+    }
+
+    function checkTopicReadProgress() {
+        if (!activeTopicSession) return;
+        const { topicId, tab, openedAt } = activeTopicSession;
+        if (progressState[tab].readTopics.has(topicId)) return;
+
+        const elapsedMs = Date.now() - openedAt;
+        const readDepth = getTopicReadDepth();
+        if (elapsedMs >= TOPIC_READ_MIN_MS && readDepth >= TOPIC_READ_SCROLL_THRESHOLD) {
+            progressState[tab].readTopics.add(topicId);
+            savePersistentState();
+            updateProgress(tab);
+        }
+    }
+
+    function checkExampleReadProgress() {
+        if (!activeTopicSession) return;
+        const { topicId, tab, exampleExpandedAt } = activeTopicSession;
+        if (progressState[tab].readExamples.has(topicId)) return;
+        if (!exampleExpandedAt) return;
+
+        const box = getTopicModalBox();
+        const toggle = document.querySelector('#topic-modal-body .example-toggle');
+        const content = document.querySelector('#topic-modal-body .example-content');
+        if (!box || !toggle || !content) return;
+        if (toggle.getAttribute('aria-expanded') !== 'true') return;
+
+        const elapsedMs = Date.now() - exampleExpandedAt;
+        if (elapsedMs < EXAMPLE_READ_MIN_MS) return;
+
+        const boxRect = box.getBoundingClientRect();
+        const contentRect = content.getBoundingClientRect();
+        const hasReachedEnd = contentRect.bottom <= (boxRect.bottom - 10);
+
+        if (hasReachedEnd) {
+            progressState[tab].readExamples.add(topicId);
+            savePersistentState();
+            updateProgress(tab);
+        }
+    }
+
+    function scheduleSessionCheck(sessionKey, delayMs) {
+        setTimeout(() => {
+            if (!activeTopicSession || activeTopicSession.sessionKey !== sessionKey) return;
+            checkTopicReadProgress();
+            checkExampleReadProgress();
+        }, delayMs);
+    }
+
+    function startTopicSession(topicId) {
+        const tab = getTopicTab(topicId);
+        const sessionKey = `${topicId}-${Date.now()}`;
+        activeTopicSession = {
+            topicId,
+            tab,
+            openedAt: Date.now(),
+            exampleExpandedAt: 0,
+            sessionKey
+        };
+        scheduleSessionCheck(sessionKey, TOPIC_READ_MIN_MS + 100);
+    }
+
+    function endTopicSession() {
+        checkTopicReadProgress();
+        checkExampleReadProgress();
+        activeTopicSession = null;
+    }
+
+    function handleTopicModalScroll() {
+        checkTopicReadProgress();
+        checkExampleReadProgress();
+    }
+
+    function setExampleExpandedState(toggle, content, expanded) {
+        toggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        const icon = toggle.querySelector('.example-toggle-icon');
+        if (icon) icon.textContent = expanded ? '-' : '+';
+        if (expanded) content.removeAttribute('hidden');
+        else content.setAttribute('hidden', '');
+    }
+
+    function setupTopicExampleExpanders(topicId) {
+        const container = document.getElementById('topic-modal-body');
+        if (!container) return;
+        const tab = getTopicTab(topicId);
+        const alreadyTracked = progressState[tab].readExamples.has(topicId);
+
+        container.querySelectorAll('.example-box').forEach(exampleBox => {
+            const labelEl = exampleBox.querySelector('.example-label');
+            const label = labelEl ? labelEl.textContent.trim() : 'Economics Parallel';
+            if (labelEl) labelEl.remove();
+
+            const bodyHtml = exampleBox.innerHTML;
+            exampleBox.classList.add('example-collapsible');
+            exampleBox.innerHTML = `
+                <button type="button" class="example-toggle" aria-expanded="false">
+                    <span>${label}</span>
+                    <span class="example-toggle-icon">+</span>
+                </button>
+                <div class="example-content" hidden>${bodyHtml}</div>
+            `;
+
+            const toggle = exampleBox.querySelector('.example-toggle');
+            const content = exampleBox.querySelector('.example-content');
+            if (!toggle || !content) return;
+
+            if (alreadyTracked) {
+                setExampleExpandedState(toggle, content, true);
+            }
+
+            toggle.addEventListener('click', () => {
+                const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+                const nextExpanded = !isExpanded;
+                setExampleExpandedState(toggle, content, nextExpanded);
+                if (!activeTopicSession || activeTopicSession.topicId !== topicId) return;
+                if (nextExpanded) {
+                    activeTopicSession.exampleExpandedAt = Date.now();
+                    scheduleSessionCheck(activeTopicSession.sessionKey, EXAMPLE_READ_MIN_MS + 120);
+                } else {
+                    activeTopicSession.exampleExpandedAt = 0;
+                }
+            });
+        });
+    }
+
+    function renderQuiz(section) {
+        const container = document.getElementById(`${section}-quiz-container`);
+        const questions = quizData[section];
+        container.innerHTML = '';
+
+        questions.forEach((q, idx) => {
+            const card = document.createElement('div');
+            card.className = 'quiz-card';
+            card.id = `${section}-q${idx}`;
+            const diffClass = q.difficulty === 'beginner' ? 'beginner' : q.difficulty === 'intermediate' ? 'intermediate' : 'advanced';
+            card.innerHTML = `
+                <span class="q-difficulty card-tag ${diffClass}">${q.difficulty}</span>
+                <div class="q-number">Question ${idx + 1} of ${questions.length}</div>
+                <div class="q-text">${q.question}</div>
+                <div class="quiz-options">
+                    ${q.options.map((opt, oi) => `
+                        <div class="quiz-option" data-section="${section}" data-question="${idx}" data-option="${oi}" onclick="selectAnswer(this)">
+                            <span class="option-letter">${String.fromCharCode(65 + oi)}</span>
+                            <span>${opt}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="quiz-explanation" id="${section}-exp${idx}">
+                    <strong>Explanation:</strong> ${q.explanation}
+                </div>
+            `;
+
+            const savedAnswer = quizState[section].answered[idx];
+            if (savedAnswer !== undefined) {
+                const options = card.querySelectorAll('.quiz-option');
+                const correct = q.correct;
+                options.forEach(opt => opt.classList.add('disabled'));
+
+                if (savedAnswer === correct) {
+                    if (options[savedAnswer]) options[savedAnswer].classList.add('selected-correct');
+                    card.classList.add('answered-correct');
+                } else {
+                    if (options[savedAnswer]) options[savedAnswer].classList.add('selected-wrong');
+                    card.classList.add('answered-wrong');
+                    if (options[correct]) options[correct].classList.add('reveal-correct');
+                }
+
+                const explanation = card.querySelector('.quiz-explanation');
+                if (explanation) explanation.classList.add('visible');
+            }
+
+            container.appendChild(card);
+        });
+    }
+
+    function selectAnswer(el) {
+        const section = el.dataset.section;
+        const qIdx = parseInt(el.dataset.question);
+        const oIdx = parseInt(el.dataset.option);
+
+        if (quizState[section].answered[qIdx] !== undefined) return;
+        quizState[section].answered[qIdx] = oIdx;
+
+        const correct = quizData[section][qIdx].correct;
+        const isCorrect = oIdx === correct;
+        const card = document.getElementById(`${section}-q${qIdx}`);
+        const options = card.querySelectorAll('.quiz-option');
+
+        options.forEach(opt => opt.classList.add('disabled'));
+
+        if (isCorrect) {
+            el.classList.add('selected-correct');
+            card.classList.add('answered-correct');
+            quizState[section].correct++;
+        } else {
+            el.classList.add('selected-wrong');
+            card.classList.add('answered-wrong');
+            options[correct].classList.add('reveal-correct');
+        }
+
+        document.getElementById(`${section}-exp${qIdx}`).classList.add('visible');
+        updateScore(section);
+        savePersistentState();
+        updateProgress(section);
+
+        const totalQ = quizData[section].length;
+        const answeredCount = Object.keys(quizState[section].answered).length;
+        if (answeredCount === totalQ && quizState[section].correct >= Math.ceil(totalQ * 0.8)) {
+            setTimeout(() => launchConfetti(), 500);
+        }
+    }
+
+    function updateScore(section) {
+        const state = quizState[section];
+        const total = quizData[section].length;
+        const scoreText = document.getElementById(`${section}-score-text`);
+        const scoreRing = document.getElementById(`${section}-score-ring`);
+
+        scoreText.textContent = `${state.correct}/${total}`;
+        const circumference = 138.2;
+        const offset = circumference - (state.correct / total) * circumference;
+        scoreRing.style.strokeDashoffset = offset;
+
+        if (state.correct / total >= 0.8) scoreRing.style.stroke = 'var(--green)';
+        else if (state.correct / total >= 0.5) scoreRing.style.stroke = 'var(--orange)';
+        else scoreRing.style.stroke = 'var(--blue)';
+    }
+
+    function resetQuiz(section) {
+        quizState[section] = { answered: {}, correct: 0 };
+        quizData[section] = quizDataRaw[section].map(q => shuffleOptions(q));
+        savePersistentState();
+        renderQuiz(section);
+        updateScore(section);
+        updateProgress(section);
+    }
+
+    function resetProgress() {
+        const confirmed = window.confirm('Reset all saved progress and quiz answers?');
+        if (!confirmed) return;
+
+        ['chatbot', 'intelligence'].forEach(tab => {
+            progressState[tab].readTopics = new Set();
+            progressState[tab].readExamples = new Set();
+            progressState[tab].quizOpened = false;
+            quizState[tab] = { answered: {}, correct: 0 };
+            quizData[tab] = quizDataRaw[tab].map(q => shuffleOptions(q));
+            renderQuiz(tab);
+            updateScore(tab);
+        });
+
+        activeTopicSession = null;
+        try {
+            localStorage.removeItem(PROGRESS_STORAGE_KEY);
+        } catch (e) {}
+
+        updateProgress(activeProgressTab);
+    }
+
+    // ============================================
+    // TOPIC MODAL
+    // ============================================
+    function openTopicModal(topicId) {
+        const topic = topicContent[topicId];
+        if (!topic) return;
+        const topicTab = getTopicTab(topicId);
+        startTopicSession(topicId);
+        document.getElementById('topic-modal-title').textContent = topic.title;
+        document.getElementById('topic-modal-body').innerHTML = topic.body;
+        setupTopicExampleExpanders(topicId);
+        const topicModalBox = getTopicModalBox();
+        if (topicModalBox) topicModalBox.scrollTop = 0;
+        updateProgress(topicTab);
+        const modal = document.getElementById('modal-topic');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // ============================================
+    // BRIDGE MODAL
+    // ============================================
+    function openBridgeModal() {
+        const modal = document.getElementById('modal-bridge');
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    // ============================================
+    // QUIZ MODAL
+    // ============================================
+    function openQuizModal(section) {
+        progressState[section].quizOpened = true;
+        savePersistentState();
+        updateProgress(section);
+        renderQuiz(section);
+        updateScore(section);
+        const modal = document.getElementById(`modal-${section}`);
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeQuizModal(section) {
+        if (section === 'topic') endTopicSession();
+        document.getElementById(`modal-${section}`).classList.remove('open');
+        document.body.style.overflow = '';
+    }
+
+    function closeModalOnBg(event, section) {
+        if (event.target === event.currentTarget) {
+            closeQuizModal(section);
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const topicModal = document.getElementById('modal-topic');
+            if (topicModal && topicModal.classList.contains('open')) endTopicSession();
+            document.querySelectorAll('.modal-overlay.open').forEach(m => {
+                m.classList.remove('open');
+            });
+            document.body.style.overflow = '';
+        }
+    });
+
+    // ============================================
+    // PROGRESS
+    // ============================================
+    function hasSectionMastered(section) {
+        const totalQuestions = quizData[section].length;
+        const answeredCount = Object.keys(quizState[section].answered).length;
+        const passThreshold = Math.ceil(totalQuestions * 0.8);
+        return answeredCount === totalQuestions && quizState[section].correct >= passThreshold;
+    }
+
+    function getStepProgressForTab(tab) {
+        const totalTopics = tabTopicMap[tab].length;
+        const learnProgress = totalTopics === 0 ? 0 : progressState[tab].readTopics.size / totalTopics;
+        const connectProgress = totalTopics === 0 ? 0 : progressState[tab].readExamples.size / totalTopics;
+        const testProgress = progressState[tab].quizOpened ? 1 : 0;
+        const masterProgress = hasSectionMastered('chatbot') && hasSectionMastered('intelligence') ? 1 : 0;
+
+        return {
+            learn: Math.min(1, learnProgress),
+            connect: Math.min(1, connectProgress),
+            test: testProgress,
+            master: masterProgress
+        };
+    }
+
+    function updateProgress(tab = activeProgressTab) {
+        activeProgressTab = tab;
+        const stepState = getStepProgressForTab(activeProgressTab);
+        const totalTopics = tabTopicMap[activeProgressTab].length;
+        const readTopicsCount = progressState[activeProgressTab].readTopics.size;
+        const readExamplesCount = progressState[activeProgressTab].readExamples.size;
+        const chatbotMastered = hasSectionMastered('chatbot');
+        const intelligenceMastered = hasSectionMastered('intelligence');
+        const stepOrder = ['learn', 'connect', 'test', 'master'];
+        const percent = Math.round((stepOrder.reduce((sum, step) => sum + stepState[step], 0) / stepOrder.length) * 100);
+
+        document.getElementById('flowProgressFill').style.width = percent + '%';
+        document.getElementById('progressPercent').textContent = percent + '%';
+        document.getElementById('progressLabelText').textContent = `Module Progress - ${progressTabLabels[activeProgressTab]}`;
+        document.getElementById('learnMeterFill').style.width = Math.round(stepState.learn * 100) + '%';
+        document.getElementById('connectMeterFill').style.width = Math.round(stepState.connect * 100) + '%';
+        document.getElementById('learnProgressText').textContent = `${readTopicsCount}/${totalTopics} topics read`;
+        document.getElementById('connectProgressText').textContent = `${readExamplesCount}/${totalTopics} parallels read`;
+        document.getElementById('testStatusText').textContent = progressState[activeProgressTab].quizOpened ? 'Quiz opened' : 'Quiz not opened';
+        document.getElementById('masterStatusText').textContent = stepState.master === 1
+            ? 'Both quizzes mastered (80%+)'
+            : `Chatbot ${chatbotMastered ? 'done' : 'pending'} | Intelligence ${intelligenceMastered ? 'done' : 'pending'}`;
+
+        stepOrder.forEach(step => {
+            const stepEl = document.querySelector(`.step[data-step="${step}"]`);
+            if (!stepEl) return;
+            const progressValue = stepState[step];
+            stepEl.classList.toggle('complete', progressValue >= 1);
+            stepEl.classList.toggle('partial', progressValue > 0 && progressValue < 1);
+        });
+    }
+
+    // ============================================
+    // TABS
+    // ============================================
+    function switchTab(tab) {
+        activeProgressTab = tab;
+        savePersistentState();
+        updateProgress(tab);
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tab));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        setTimeout(() => {
+            document.querySelectorAll(`#tab-${tab} .topic-card`).forEach((card, i) => {
+                card.style.transitionDelay = (i * 0.08) + 's';
+                card.classList.add('visible');
+            });
+            observeElements();
+        }, 50);
+    }
+
+    // ============================================
+    // SCROLL REVEAL
+    // ============================================
+    function observeElements() {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    if (entry.target.classList.contains('topic-card')) entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.reveal-on-scroll, .topic-card:not(.visible)').forEach(el => observer.observe(el));
+    }
+
+    // ============================================
+    // CONFETTI
+    // ============================================
+    function launchConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-container';
+        document.body.appendChild(container);
+        const colors = ['#7EB8DA', '#A8D4EA', '#7BC8A4', '#A3DBBF', '#B08FCC', '#E8B87C', '#E8877C'];
+        for (let i = 0; i < 80; i++) {
+            const piece = document.createElement('div');
+            piece.className = 'confetti-piece';
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const left = Math.random() * 100;
+            const rotation = Math.random() * 720 - 360;
+            const fallDur = 2 + Math.random() * 2;
+            const fallDelay = Math.random() * 0.5;
+            const size = 6 + Math.random() * 8;
+            const shape = Math.random() > 0.5 ? '50%' : '2px';
+            piece.style.cssText = `left:${left}%;width:${size}px;height:${size}px;background:${color};border-radius:${shape};--rotation:${rotation}deg;--fall-dur:${fallDur}s;--fall-delay:${fallDelay}s;`;
+            container.appendChild(piece);
+        }
+        setTimeout(() => container.remove(), 4000);
+    }
+
+    // ============================================
+    // PARTICLES
+    // ============================================
+    function initParticles() {
+        const canvas = document.getElementById('particleCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const dpr = window.devicePixelRatio || 1;
+        function resize() { canvas.width = window.innerWidth * dpr; canvas.height = window.innerHeight * dpr; ctx.scale(dpr, dpr); }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const particles = [];
+        for (let i = 0; i < 30; i++) {
+            particles.push({
+                x: Math.random() * window.innerWidth,
+                y: Math.random() * window.innerHeight,
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: (Math.random() - 0.5) * 0.25,
+                r: 1.5 + Math.random() * 2,
+                opacity: 0.08 + Math.random() * 0.15,
+                color: Math.random() > 0.5 ? '126, 184, 218' : '123, 200, 164'
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+            particles.forEach(p => {
+                p.x += p.vx; p.y += p.vy;
+                if (p.x < 0) p.x = window.innerWidth;
+                if (p.x > window.innerWidth) p.x = 0;
+                if (p.y < 0) p.y = window.innerHeight;
+                if (p.y > window.innerHeight) p.y = 0;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${p.color}, ${p.opacity})`;
+                ctx.fill();
+            });
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    if (dist < 140) {
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.strokeStyle = `rgba(126, 184, 218, ${0.035 * (1 - dist / 140)})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                }
+            }
+            requestAnimationFrame(draw);
+        }
+        draw();
+    }
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+        initParticles();
+        loadPersistentState();
+        updateScore('chatbot');
+        updateScore('intelligence');
+        const topicModalBox = getTopicModalBox();
+        if (topicModalBox) topicModalBox.addEventListener('scroll', handleTopicModalScroll, { passive: true });
+        switchTab(activeProgressTab);
+        observeElements();
+    });
+    </script>
+</body>
+</html>
